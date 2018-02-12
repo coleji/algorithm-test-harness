@@ -1,0 +1,15 @@
+{
+  "name": "algo-test-harness",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/console.js",
+  "scripts": {
+    "start": "nodejs dist/console.js",
+    "test": "nodejs dist/test.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "gulp-concat": "^2.6.1"
+  }
+}
