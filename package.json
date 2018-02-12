@@ -5,11 +5,12 @@
   "main": "dist/console.js",
   "scripts": {
     "start": "nodejs dist/console.js",
-    "test": "nodejs dist/test.js"
+    "test": "mocha dist/test.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "gulp-concat": "^2.6.1"
+    "gulp-concat": "^2.6.1",
+    "mocha": "^5.0.0"
   }
 }

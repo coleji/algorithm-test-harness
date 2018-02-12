@@ -1,21 +1,62 @@
 function getAlternatives() {
 	const naive = (args) => {
-		var ret = null
+		var ret = args[0] * args[1]
 		for (var i=0; i<args.length; i++) {
 			for (j=i+1; j<args.length; j++) {
-				if (ret == null || args[i] * args[j] > ret) ret = args[i] * args[j]
+				if (args[i] * args[j] > ret) ret = args[i] * args[j]
 			}
 		}
 		return ret;
 	}
-	return [{
+
+	const imperative = args => {
+		if (args[0] > args[1]) {
+			var firstMax = args[0]
+			var secondMax = args[1]
+		} else {
+			var firstMax = args[1]
+			var secondMax = args[0]
+		}
+		for (var i=2; i<args.length; i++) {
+			if (args[i] > firstMax) {
+				secondMax = firstMax
+				firstMax = args[i]
+			} else if (args[i] > secondMax) {
+				secondMax = args[i]
+			}
+		}
+		return firstMax * secondMax
+	}
+
+	const functional = (args) => {
+		const findMax = arr => arr.reduce((agg, e, i, a) => {
+			if (e > agg.max) {
+				return {max: e, i: i}
+			} else return agg
+		}, {
+			max: arr[0],
+			i: 0
+		})
+
+		const firstMax = findMax(args)
+		const secondMax = findMax(args.filter((e, i) => {
+			return i != firstMax.i
+		}))
+		return firstMax.max * secondMax.max
+	}
+	return [/*{
 		name: "naive",
 		f: naive
+	}, */{
+		name: "functional",
+		f: functional
 	}]
 }
 
+var assert = require('assert');
+
 function runCases(argSets, implementations, showAllResults) {
-	return argSets.map(argSet => {
+	const results = argSets.map(argSet => {
 		return implementations.map(i => Object.assign({}, i, {
 			argSet: argSet,
 			results: i.f(argSet)
@@ -30,40 +71,64 @@ function runCases(argSets, implementations, showAllResults) {
 	}).map(decoratedImplementations => {
 		var ret = {
 			argSet: decoratedImplementations[0].argSet,
+			results: decoratedImplementations.map(i => ({
+				name: i.name,
+				results: i.results
+			}))
 		}
-		decoratedImplementations.forEach(i => {
-			ret[i.name] = i.results
-		})
-		return ret;
+		return ret
+	})
+
+	results.forEach(r => {
+		describe('ArgSet ' + r.argSet, function() {
+			r.results.filter((e, i) => i > 0).forEach(e => {
+				it('should equal ' + e.name, function() {
+					assert.equal(e.results, r.results[0].results);
+				});
+			})
+		});
 	})
 }
 
-console.log(runCases(getTestCases(), [{
+runCases(getTestCases(), [{
 	name: "main",
 	f: main
-}].concat(getAlternatives())))
+}].concat(getAlternatives()))
 
 function main(args) {
-	const findMax = arr => arr.reduce((agg, e, i) => {
-		if (null == agg.max) {
+	const findMax = arr => arr.reduce((agg, e, i, a) => {
+		if (e > agg.max) {
 			return {max: e, i: i}
-		} else {
-			if (e > agg.max) {
-				return {max: e, i: i}
-			} else return agg
-		}
+		} else return agg
 	}, {
-		max: null,
-		i: null
+		max: arr[0],
+		i: 0
 	})
+
 	const firstMax = findMax(args)
-	const secondMax = findMax(args.filter((e, i) => i != firstMax.i))
+	const secondMax = findMax(args.filter((e, i) => {
+		return i != firstMax.i
+	}))
 	return firstMax.max * secondMax.max
 }
 
 function getTestCases() {
-	return [
-		[1,2,3],
-		[2,3,4,9,5,9,1]
+	const INT_LIMIT = 200000;
+	const INTERATIONS = 10;
+	const ARG_SET_SIZE = 10
+	function rand() {
+		return Math.floor(Math.random() * INT_LIMIT)
+	}
+	var ret = [
+		[0,0,0,0,0,0,0]
 	]
+	console.log(200000 * 200000)
+	for (var i=0; i<INTERATIONS; i++) {
+		var e = [];
+		for (var j=0; j < ARG_SET_SIZE; j++) {
+			e.push(rand())
+		}
+		ret.push(e)
+	}
+	return ret
 }
